@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>DevRel Owners to Blink Components</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-weight: 300;
+  }
+  #list {
+    margin: 0;
+    padding: 0;
+  }
+  .list_heading {
+    padding: 8px 0;
+    display: flex;
+    text-transform: uppercase;
+  }
+  #list .list_item {
+    display: flex;
+    padding: 4px 0;
+  }
+  .bold {
+    font-weight: 600;
+  }
+  .component_name,
+  .component_email,
+  .list_heading .heading,
+  .devrel_owner {
+    width: 340px;
+  }
+</style>
+<script src="bower_components/webcomponentsjs/webcomponents-loader.js" async></script>
+<!--<link rel="import" href="bower_components/polymer/polymer.html" async>-->
+<link rel="import" href="bower_components/polymer/lib/elements/dom-bind.html" async>
+<link rel="import" href="bower_components/polymer/lib/elements/dom-repeat.html" async>
+</head>
+<body>
+
+<dom-bind>
+<template>
+  <ul id="list">
+    <li class="list_heading">
+      <span class="heading">Component</span>
+      <span class="heading">Mailing list</span>
+      <span class="heading">DevRel Owner</span>
+    </li>
+    <dom-repeat items="[[components]]" as="component">
+      <template>
+        <li class="list_item">
+          <span class="component_name bold">[[component.name]]</span>
+          <span class="component_email">[[component.list]]</span>
+          <span class="devrel_owner">???</span>
+        </li>
+      </template>
+    </dom-repeat>
+  </ul>
+</template>
+</dom-bind>
+
+<script>
+'use strict';
+
+const ENDPOINT = 'https://storage.googleapis.com/chromium-owners/component_map.json';
+
+const app = document.querySelector('dom-bind');
+const listEl = document.querySelector('.list_items');
+
+/**
+ * @param {string} url
+ */
+async function fetchMappingFile(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    throw new Error(`${resp.status} response from ${url}`);
+  }
+  const json = await resp.json();
+  return json;
+}
+
+fetchMappingFile(ENDPOINT).then(json => {
+  const components = json['component-to-team'];
+  app.components = Object.entries(components).map(([name, list]) => ({name, list}));
+
+  // for (const [component, mailingList] of Object.entries(components)) {
+  //   // const span = li.appendChild(document.createElement('span'));
+  //   // span.textContent = component;
+  //   // span.classList.add('component_name');
+  //   // const span2 = li.appendChild(document.createElement('span'));
+  //   // span2.textContent = mailingList;
+  //   // span2.classList.add('component_email');
+  // }
+});
+</script>
+</body>
+</html>

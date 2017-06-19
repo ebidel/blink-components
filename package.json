@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "firebase serve --only hosting,functions",
+    "deploy": "firebase deploy"
+  },
+  "dependencies": {
+    "firebase-tools": "^3.9.0",
+    "node-fetch": "^1.7.0"
+  }
+}
