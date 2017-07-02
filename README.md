@@ -15,7 +15,7 @@ that guy in a file named `.github_oauth_token`, and run:
 
     yarn setconfig
 
-### Installation
+### Installation & Setup
 
 You'll need the [Firebase CLI tools](https://firebase.google.com/docs/cli/).
 
@@ -24,11 +24,19 @@ Then install and set the project:
     yarn
     firebase use blinkcomponents-b48b5
 
+Lastly, run:
+
+    firebase functions:config:get > .runtimeconfig.json
+
+to generate local env variables needed by the dev server.
+
 ### Dev
 
-Build:
+This project uses Node 8 features, so it needs to be built using Babel:
 
     yarn build
+
+ This will create `./functions-dist`. FB functions will serve the functions from that directory.
 
 Serve:
 
