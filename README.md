@@ -24,10 +24,18 @@ Then install and set the project:
     yarn
     firebase use blinkcomponents-b48b5
 
+### Dev
+
+Build:
+
+    yarn build
+
 Serve:
 
     yarn start
 
 Deploy:
 
-   yarn deploy
+    yarn deploy
+
+That's it!
