@@ -26,7 +26,7 @@ Then install and set the project:
 
 Lastly, run:
 
-    firebase functions:config:get > .runtimeconfig.json
+    firebase functions:config:get > functions/.runtimeconfig.json
 
 to generate local env variables needed by the dev server.
 

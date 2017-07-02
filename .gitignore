@@ -3,3 +3,4 @@ bower_components
 .github_oauth_token
 *-debug.log
 *dist
+functions/.runtimeconfig.json
