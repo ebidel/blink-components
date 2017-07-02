@@ -1,1 +1,81 @@
-Hi.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>List of Blink Components</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-weight: 300;
+  }
+  #list {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+<!--<script src="bower_components/webcomponentsjs/webcomponents-loader.js" async></script>-->
+<!--<link rel="import" href="bower_components/polymer/polymer.html" async>-->
+<!--<link rel="import" href="bower_components/polymer/lib/elements/dom-bind.html" async>-->
+<!--<link rel="import" href="bower_components/polymer/lib/elements/dom-repeat.html" async>-->
+</head>
+<body>
+
+<!--<dom-bind>
+<template>
+  <ul id="list">
+    <li class="list_heading">
+      <span class="heading">Component</span>
+      <span class="heading">Mailing list</span>
+      <span class="heading">DevRel Owner</span>
+    </li>
+    <dom-repeat items="[[components]]" as="component">
+      <template>
+        <li class="list_item">
+          <span class="component_name bold">[[component.name]]</span>
+          <span class="component_email">[[component.list]]</span>
+          <span class="devrel_owner">???</span>
+        </li>
+      </template>
+    </dom-repeat>
+  </ul>
+</template>
+</dom-bind>-->
+
+<ul id="list">
+  <!-- fill me -->
+</ul>
+
+<script>
+'use strict';
+
+const ENDPOINT = '/blinkcomponents';
+
+// const app = document.querySelector('dom-bind');
+const listEl = document.querySelector('#list');
+
+/**
+ * @param {string} url
+ */
+async function fetchMappingFile(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    throw new Error(`${resp.status} response from ${url}`);
+  }
+  const json = await resp.json();
+  return json;
+}
+
+fetchMappingFile(ENDPOINT).then(components => {
+  // app.components = components;
+
+  components.forEach(item => {
+    const li = document.createElement('li');
+    li.classList.add('list_item');
+    li.textContent = item;
+    listEl.appendChild(li);
+  });
+});
+</script>
+</body>
+</html>

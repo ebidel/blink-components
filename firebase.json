@@ -1,9 +1,21 @@
 {
   "hosting": {
     "public": "public",
+    "cleanUrls": true,
     "rewrites": [{
       "source": "/blinkcomponents",
       "function": "blinkcomponents"
-    }]
+    }, {
+      "source": "/wfcomponents",
+      "function": "wfcomponents"
+    }],
+    "ignore": [
+      "firebase.json",
+      "**/.md",
+      "**/node_modules/**"
+    ]
+  },
+  "functions": {
+    "source": "functions-dist"
   }
 }

@@ -1,11 +1,16 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
+  "engines": {
+    "node": ">=8"
+  },
   "dependencies": {
     "csvtojson": "^1.1.6",
-    "firebase-admin": "~4.2.1",
-    "firebase-functions": "^0.5.7",
-    "node-fetch": "^1.7.0"
+    "firebase-admin": "^5.0.0",
+    "firebase-functions": "^0.5.8",
+    "node-fetch": "^1.7.1",
+    "parse-link-header": "^1.0.1",
+    "whatwg-url": "^6.1.0"
   },
   "private": true
 }

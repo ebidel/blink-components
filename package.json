@@ -1,10 +1,24 @@
 {
   "scripts": {
+    "postinstall": "yarn install-function-deps",
+    "install-function-deps": "cd functions && yarn",
+    "setconfig": "firebase functions:config:set github.oauth_token=`cat .github_oauth_token`",
+    "prebuild": "rimraf functions-dist",
+    "build": "babel 'functions' --out-dir 'functions-dist' --presets=es2017 --copy-files --ignore 'node_modules' && cp functions/.runtimeconfig.json functions-dist/",
+    "postbuild": "cd functions-dist && yarn",
+    "prestart": "yarn build",
     "start": "firebase serve --only hosting,functions",
-    "deploy": "firebase deploy"
+    "deploy": "yarn build && firebase deploy"
+  },
+  "engines": {
+    "node": ">=8"
   },
   "dependencies": {
-    "firebase-tools": "^3.9.0",
-    "node-fetch": "^1.7.0"
+    "firebase-tools": "^3.9.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "rimraf": "^2.6.1"
   }
 }

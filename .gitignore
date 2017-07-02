@@ -1,2 +1,5 @@
 node_modules
 bower_components
+.github_oauth_token
+*-debug.log
+*dist
