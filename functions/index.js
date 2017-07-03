@@ -95,6 +95,7 @@ exports.blinkcomponents = functions.https.onRequest((req, res) => {
     .then(list => unique([...components, ...list]).sort())
     .then(list => {
       list = list.filter(item => item); // Remove empty strings.
+      res.set('Content-Type', 'application/json;charset=utf-8');
       res.set('Cache-Control', 'private, max-age=300');
       res.set('Access-Control-Allow-Origin', '*');
       res.status(200).send(list);
@@ -145,5 +146,6 @@ exports.wfcomponents = functions.https.onRequest(async (req, res) => {
 
   res.set('Cache-Control', 'private, max-age=300');
   res.set('Access-Control-Allow-Origin', '*');
+  res.set('Content-Type', 'application/json;charset=utf-8');
   res.status(200).send(mapToObj(blinkComponentsToMetadata));
 });
