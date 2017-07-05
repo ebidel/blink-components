@@ -121,13 +121,14 @@ exports.wfcomponents = functions.https.onRequest(async (req, res) => {
   const files = await searcher.fetchAllPages(url.href);
   for (const file of files) { // fetch files sequentially.
   // await Promise.all(files.map(async file => { // fetch files  in parallel.
-    const srcPath = `https://github.com/${REPO}/blob/master/${file.path}`;
-    const result = await searcher.fetchFileContent(file.html_url);
+    const repoPath = `https://github.com/${REPO}/blob/master/${file.path}`;
+    const srcPath = `https://raw.githubusercontent.com/${REPO}/master/${file.path}`;
+    const result = await searcher.fetchFileContent(srcPath);
     const metadata = searcher.parseFile(result.text);
 
     // Map found blink component names to the content URLs that used them.
     metadata.components.forEach(component => {
-      const obj = Object.assign({url: srcPath}, metadata);
+      const obj = Object.assign({url: repoPath}, metadata);
       if (blinkComponentsToMetadata.has(component)) {
         blinkComponentsToMetadata.get(component).push(obj);
       } else {
