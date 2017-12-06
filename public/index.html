@@ -8,10 +8,42 @@
   body {
     font-family: Arial, sans-serif;
     font-weight: 300;
+    padding: 16px;
+    line-height: 1.4;
+  }
+  h1, h2, h3, h4 {
+    font-weight: inherit;
+    margin: 0;
   }
   #list {
     margin: 0;
     padding: 0;
+    padding-top: 16px;
+    list-style: none;
+    cursor: pointer;
+  }
+  input[type="search"] {
+    /* padding: 8px; */
+    min-width: 200px;
+    -webkit-appearance: none;
+    border: 1px solid #ccc;
+  }
+  header {
+    border-bottom: 1px solid #555;
+    padding-bottom: 16px;
+  }
+  #wf_tag {
+    border: none;
+    width: 100%;
+    font-size: inherit;
+    font-family: monospace;
+    cursor: copy;
+  }
+  #wf_tag:placeholder-shown {
+    cursor: initial;
+  }
+  .list_item.selected {
+    font-weight: bold;
   }
 </style>
 <!--<script src="bower_components/webcomponentsjs/webcomponents-loader.js" async></script>-->
@@ -42,6 +74,21 @@
 </template>
 </dom-bind>-->
 
+<header>
+  <h1>List of Blink components</h1>
+  <p>Instructions</p>
+  <ol>
+    <li>Use the input below to narrow the list by relevant keywords.</li>
+    <li>Click a component name to generate (or add it to) the <code>wf_blink_components</code> metadata tag for /web content.</li>
+    <li>Clicking the snippet will copy it to the clipboard. Include it in the metadata section of your article.</li>
+  </ol>
+  <div style="display:flex">
+    <input type="search" name="components" placeholder="Type to filter the list">
+    <span style="flex:1;white-space: nowrap;"><input id="wf_tag" title="Click to copy to clipboard=" readonly placeholder=" "></span>
+  </div>
+</header>
+
+
 <ul id="list">
   <!-- fill me -->
 </ul>
@@ -50,31 +97,115 @@
 'use strict';
 
 const ENDPOINT = '/blinkcomponents';
+let COMPONENT_LIST_CACHE = [];
+let filteredList = [];
+const selectedComponents = new Map();
 
 // const app = document.querySelector('dom-bind');
 const listEl = document.querySelector('#list');
+const input = document.querySelector('[name="components"]');
+const wfTag = document.querySelector('#wf_tag');
+
+function generateWFTag(list) {
+  if (list.length) {
+    wfTag.value = `{# wf_blink_components: ${list.join(',')} #}`;
+  } else {
+    wfTag.value = '';
+  }
+}
+
+function selectItem(li) {
+  li.classList.add('selected');
+}
 
 /**
  * @param {string} url
  */
 async function fetchMappingFile(url) {
+  if (COMPONENT_LIST_CACHE.length) {
+    return COMPONENT_LIST_CACHE;
+  }
+
   const resp = await fetch(url);
   if (!resp.ok) {
     throw new Error(`${resp.status} response from ${url}`);
   }
-  const json = await resp.json();
-  return json;
+  const list = await resp.json();
+  try {
+    list.splice(list.findIndex(item => item === 'Blink'), 1); // Remove "Blink".
+  } catch (err) {
+    // noop
+  }
+  filteredList = list;
+  COMPONENT_LIST_CACHE = list;
+  return list;
 }
 
-fetchMappingFile(ENDPOINT).then(components => {
-  // app.components = components;
-
+function createDOMFromComponentList(components) {
+  listEl.innerHTML = '';
+  const selections = Array.from(selectedComponents.keys());
   components.forEach(item => {
     const li = document.createElement('li');
     li.classList.add('list_item');
+    if (selections.includes(item)) {
+      selectItem(li);
+    }
     li.textContent = item;
     listEl.appendChild(li);
   });
+}
+
+document.addEventListener('input', async e => {
+  const components = await fetchMappingFile(ENDPOINT);
+
+  const needle = e.target.value.toLowerCase();
+  if (!needle) {
+    filteredList = components;
+  }
+  filteredList = components.filter(item => {
+    return item.toLowerCase().includes(needle);
+  });
+  createDOMFromComponentList(filteredList);
+});
+
+listEl.addEventListener('click', e => {
+  if (!e.target.classList.contains('list_item')) {
+    return;
+  }
+
+  const name = e.target.textContent;
+  if (selectedComponents.has(name)) {
+    selectedComponents.delete(name);
+  } else {
+    selectedComponents.set(name, name);
+  }
+  const selections = Array.from(selectedComponents.keys());
+  generateWFTag(selections);
+
+  createDOMFromComponentList(filteredList);
+});
+
+wfTag.addEventListener('click', e => {
+  if (!wfTag.value) {
+    return;
+  }
+  try {
+    const successful = document.execCommand('copy');
+    const msg = successful ? 'successful' : 'unsuccessful';
+    console.log(`Copy: ${msg}`);
+  } catch (err) {
+    console.error('execCommand Error', err);
+  }
+});
+
+document.addEventListener('copy', e => {
+  e.preventDefault();
+  e.clipboardData.setData('text/plain', wfTag.value);
+});
+
+fetchMappingFile(ENDPOINT).then(components => {
+  // app.components = components;
+  createDOMFromComponentList(components);
 });
 </script>
 </body>
