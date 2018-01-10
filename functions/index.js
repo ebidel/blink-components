@@ -96,7 +96,7 @@ exports.blinkcomponents = functions.https.onRequest((req, res) => {
     .then(list => {
       list = list.filter(item => item); // Remove empty strings.
       res.set('Content-Type', 'application/json;charset=utf-8');
-      res.set('Cache-Control', 'private, max-age=300');
+      res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
       res.set('Access-Control-Allow-Origin', '*');
       res.status(200).send(list);
     }).catch(err => {
