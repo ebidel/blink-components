@@ -111,7 +111,7 @@ exports.wfcomponents = functions.https.onRequest(async (req, res) => {
 
   const url = new URL('https://api.github.com/search/code');
   url.searchParams.append(
-      'q', `${SEARCH_TERM} in:file language:markdown repo:${REPO}`);
+      'q', `${SEARCH_TERM} path:src/content/en in:file language:markdown repo:${REPO}`);
   url.searchParams.append('per_page', 100); // get max results per page.
   url.searchParams.append('access_token', functions.config().github.oauth_token);
 
@@ -119,15 +119,24 @@ exports.wfcomponents = functions.https.onRequest(async (req, res) => {
   const urlsToMetadata = new Map();
 
   const files = await searcher.fetchAllPages(url.href);
+  console.log(`Fetching content for ${files.length} pages`);
+
   for (const file of files) { // fetch files sequentially.
   // await Promise.all(files.map(async file => { // fetch files  in parallel.
     const repoPath = `https://github.com/${REPO}/blob/master/${file.path}`;
     const srcPath = `https://raw.githubusercontent.com/${REPO}/master/${file.path}`;
+
+    // TODO: don't fetch content for files tagged wf_blink_components: N/A.
     const result = await searcher.fetchFileContent(srcPath);
     const metadata = searcher.parseFile(result.text);
 
     // Map found blink component names to the content URLs that used them.
     metadata.components.forEach(component => {
+      // Ignore out n/a tags.
+      if (component.toUpperCase() === 'N/A') {
+        return;
+      }
+
       const obj = Object.assign({url: repoPath}, metadata);
       if (blinkComponentsToMetadata.has(component)) {
         blinkComponentsToMetadata.get(component).push(obj);
@@ -145,7 +154,7 @@ exports.wfcomponents = functions.https.onRequest(async (req, res) => {
   // }));
   }
 
-  res.set('Cache-Control', 'private, max-age=300');
+  res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Content-Type', 'application/json;charset=utf-8');
   res.status(200).send(mapToObj(blinkComponentsToMetadata));
